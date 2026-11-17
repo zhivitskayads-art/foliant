@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фолиант</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+
+    <!-- ВЕРХНЯЯ ГИРЛЯНДА -->
+    <div class="garland-wire">
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+        <div class="flag"></div>
+    </div>
+
+    <!-- ШАПКА -->
+    <header class="app-header">
+        <button
+            type="button"
+            class="hamburger-btn"
+            onclick="toggleSidebar()"
+            title="Открыть меню"
+        >
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <h1 class="logo-center" onclick="navigate('catalog-view')">Фолиант</h1>
+
+        <div class="header-auth-corner">
+            <div id="header-user-status"></div>
+        </div>
+    </header>
+
+    <!-- ПОИСК И КАТЕГОРИИ: ТОЛЬКО ГЛАВНАЯ -->
+    <div class="search-category-bar">
+        <button
+            type="button"
+            class="categories-btn"
+            onclick="toggleCategoriesDrawer()"
+        >
+            Категории
+        </button>
+
+        <div class="search-wrap">
+            <input
+                type="text"
+                id="live-search-input"
+                placeholder="Поиск по названию, автору или жанру..."
+                oninput="handleSearch(this.value)"
+            >
+
+            <div
+                id="search-suggestions-box"
+                class="search-dropdown"
+                style="display: none;"
+            ></div>
+        </div>
+    </div>
+
+    <!-- ЛЕВОЕ МЕНЮ -->
+    <div id="sidebar-overlay" class="drawer-overlay" onclick="toggleSidebar()"></div>
+
+    <aside id="app-sidebar" class="app-sidebar">
+        <div class="sidebar-user-block">
+            <button
+                type="button"
+                class="sidebar-close-black"
+                onclick="toggleSidebar()"
+                title="Закрыть"
+            >✕</button>
+
+            <div id="sidebar-profile-info"></div>
+
+            <button
+                type="button"
+                id="logout-button"
+                class="logout-button"
+                onclick="logoutAccount()"
+                style="display: none;"
+            >
+                Выйти из аккаунта
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item" onclick="navigate('catalog-view')">Главная</button>
+
+            <button
+                class="nav-item"
+                id="nav-library-btn"
+                onclick="navigate('library-view')"
+            >Моя библиотека</button>
+
+            <button
+                class="nav-item"
+                id="nav-dictionary-btn"
+                onclick="navigate('dictionary-view')"
+            >Словарь и карточки</button>
+
+            <button
+                class="nav-item"
+                id="nav-writer-books"
+                style="display: none;"
+                onclick="navigate('writer-view')"
+            >Мои книги</button>
+
+            <button
+                class="nav-item"
+                id="nav-support-btn"
+                onclick="navigate('support-view')"
+            >Поддержка</button>
+
+            <button
+                class="nav-item"
+                id="nav-rules-btn"
+                onclick="openRulesModal()"
+            >Правила</button>
+
+            <button
+                class="nav-item"
+                id="nav-mod-btn"
+                style="display: none;"
+                onclick="navigate('moderator-view')"
+            >Модерация авторства</button>
+
+            <button
+                class="nav-item"
+                id="nav-admin-btn"
+                style="display: none;"
+                onclick="navigate('admin-view')"
+            >Администрация</button>
+        </nav>
+    </aside>
+
+    <!-- КАТЕГОРИИ -->
+    <div
+        id="categories-overlay"
+        class="drawer-overlay"
+        onclick="toggleCategoriesDrawer()"
+    ></div>
+
+    <div id="categories-drawer" class="categories-drawer">
+        <div class="drawer-header">
+            <h3>Категории</h3>
+            <button
+                type="button"
+                class="drawer-close"
+                onclick="toggleCategoriesDrawer()"
+            >✕</button>
+        </div>
+
+        <div class="categories-columns">
+            <div class="categories-left" id="sections-list">
+                <div
+                    class="cat-sec-item active"
+                    onclick="selectSection(1, this)"
+                >Книги</div>
+
+                <div
+                    class="cat-sec-item"
+                    onclick="selectSection(2, this)"
+                >Фанфики</div>
+
+                <div
+                    class="cat-sec-item"
+                    onclick="selectSection(3, this)"
+                >Манга</div>
+
+                <div
+                    class="cat-sec-item"
+                    onclick="selectSection(4, this)"
+                >Журналы</div>
+            </div>
+
+            <div class="categories-right" id="genres-list"></div>
+        </div>
+    </div>
+
+    <!-- IPOD-ПЛЕЕР -->
+    <div id="global-ipod-player" class="mini-ipod" style="display: none;">
+        <button
+            type="button"
+            class="ipod-cross"
+            onclick="closeGlobalPlayer()"
+        >✕</button>
+
+        <div class="mini-screen">
+            <div class="track-marquee" id="ipod-track-title">Трек не выбран</div>
+
+            <div class="track-progress-bar">
+                <div id="ipod-progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="mini-controls">
+    <button type="button" onclick="seekAudio(-10)" aria-label="Назад на 10 секунд" title="Назад на 10 секунд">«</button>
+
+    <button type="button" id="ipod-play-btn" class="ipod-play-toggle" onclick="toggleAudio(event)" title="Включить" aria-label="Включить">
+    <span class="play-icon" aria-hidden="true">▶</span>
+    <span class="pause-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+    </span>
+</button>
+    <button type="button" onclick="seekAudio(10)" aria-label="Вперёд на 10 секунд" title="Вперёд на 10 секунд">»</button>
+        </div>
+
+        <audio
+            id="global-audio-source"
+            ontimeupdate="updateAudioProgress()"
+        ></audio>
+    </div>
+
+    <!-- АТМОСФЕРНЫЕ ЗВУКИ -->
+    <audio
+        id="ambient-rain"
+        loop
+        preload="none"
+        src="/static/uploads/audio/rain.mp3"
+    ></audio>
+
+    <audio
+        id="ambient-fire"
+        loop
+        preload="none"
+        src="/static/uploads/audio/fire.mp3"
+    ></audio>
+
+    <main class="main-container">
+
+        <!-- ГЛАВНАЯ -->
+        <section id="catalog-view" class="view-screen active">
+            <div class="autumn-banner">
+                <h2>Осеннее чтение</h2>
+                <p>Классика, молодёжные новеллы, фанфики и уютная музыка к произведениям</p>
+            </div>
+
+            <div class="shelf-wrapper">
+                <div class="shelf-title-row">
+                    <h3>Хиты чтения</h3>
+                </div>
+
+                <div class="books-row" id="shelf-books-row"></div>
+
+                <div class="wood-shelf" id="main-wood-shelf">
+                    <div class="shelf-left-edge"></div>
+                    <div class="shelf-front-wood"></div>
+                    <div class="shelf-right-edge"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- СТРАНИЦА КАТЕГОРИИ -->
+        <section id="category-view" class="view-screen">
+            <div class="subpage-header">
+                <h2 id="category-title">Категория</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div id="category-books-grid" class="category-page-grid"></div>
+        </section>
+
+        <!-- КАРТОЧКА КНИГИ -->
+        <section id="book-page-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Карточка книги</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div class="book-detail-card">
+                <h2 id="bp-title" class="book-headline">Название</h2>
+                <div id="bp-hashtags" class="hashtags-row"></div>
+
+                <div class="bright-desc-box">
+                    <p id="bp-description">Описание книги</p>
+                </div>
+
+                <div class="purchase-action-bar">
+                    <div class="stats-pills">
+                        <span id="bp-downloads">Прочтений: 0</span>
+                        <span id="bp-purchases">Куплено: 0</span>
+                        <span id="bp-price-tag" class="price-highlight">Бесплатно</span>
+                    </div>
+
+                    <button type="button" id="bp-buy-btn" class="buy-book-btn" onclick="handleBuyCurrentBook()">Купить книгу</button>
+                    <button type="button" id="bp-library-btn" class="buy-book-btn" onclick="addCurrentBookToLibrary()">Добавить в библиотеку</button>
+                </div>
+
+                <div class="audio-duo-panel">
+                    <div class="audio-unit">
+                        <span class="audio-unit-label">Аудиокнига</span>
+
+                        <div class="audio-controls-row">
+                            <button
+                                type="button"
+                                id="bp-audiobook-btn"
+                                class="audio-lightyellow-btn"
+                                onclick="playBookTrack('audiobook')"
+                            >Слушать главу</button>
+
+                            <button
+                                type="button"
+                                class="audio-stop-btn"
+                                onclick="stopAudio()"
+                            >Стоп</button>
+                        </div>
+                    </div>
+
+                    <div class="audio-unit">
+                        <span class="audio-unit-label">Музыка к книге</span>
+
+                        <div class="audio-controls-row">
+                            <button
+                                type="button"
+                                id="bp-playlist-btn"
+                                class="audio-lightyellow-btn"
+                                onclick="playBookTrack('playlist')"
+                            >Включить саундтрек</button>
+
+                            <button
+                                type="button"
+                                class="audio-stop-btn"
+                                onclick="stopAudio()"
+                            >Стоп</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-info-stripe">
+                    <span id="bp-rating">★ 5.0 / 5.0</span>
+                    <span id="bp-reads">Отзывов: 0</span>
+
+                    <button
+                        type="button"
+                        class="copy-link-btn"
+                        onclick="copyBookLink()"
+                    >Копировать ссылку</button>
+                </div>
+
+                <div class="chapters-block">
+                    <h3>Оглавление</h3>
+                    <div id="bp-chapters-list" class="chapters-grid"></div>
+                </div>
+
+                <div class="reviews-block">
+                    <h3>Отзывы читателей</h3>
+                    <div id="bp-reviews-list" class="reviews-stream"></div>
+
+                    <form class="new-review-box" onsubmit="handleSendReview(event)">
+                        <label>Оставить свой отзыв:</label>
+
+                        <select id="rev-rating-input">
+                            <option value="5">★★★★★ 5</option>
+                            <option value="4">★★★★☆ 4</option>
+                            <option value="3">★★★☆☆ 3</option>
+                            <option value="2">★★☆☆☆ 2</option>
+                            <option value="1">★☆☆☆☆ 1</option>
+                        </select>
+
+                        <textarea
+                            id="rev-text-input"
+                            placeholder="Поделитесь впечатлениями о произведении..."
+                            required
+                        ></textarea>
+
+                        <button type="submit" class="submit-action-btn">
+                            Опубликовать отзыв
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ЧИТАЛКА -->
+        <section id="reader-view" class="view-screen">
+            <div class="reader-header-bar">
+                <button
+                    type="button"
+                    class="reader-config-btn"
+                    onclick="toggleReaderSettings()"
+                >Настройки и атмосфера</button>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад на главную</button>
+            </div>
+
+            <div
+                id="reader-settings-panel"
+                class="reader-palette-panel"
+                style="display: none;"
+            >
+                <div class="set-row">
+                    <span>Тема страницы:</span>
+
+                    <button type="button" onclick="setReadingTheme('dark')">
+                        Тёмно-синяя
+                    </button>
+
+                    <button type="button" onclick="setReadingTheme('sepia')">
+                        Сепия
+                    </button>
+
+                    <button type="button" onclick="setReadingTheme('light')">
+                        Ванильная
+                    </button>
+                </div>
+
+                <div class="set-row">
+                    <span>Размер шрифта:</span>
+
+                    <button type="button" onclick="adjustFontSize(-2)">A -</button>
+                    <button type="button" onclick="adjustFontSize(2)">A +</button>
+                </div>
+
+                <div class="ambient-mixer-row">
+                    <span>Дождь:</span>
+
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value="0"
+                        onchange="adjustAmbientSound('rain', this.value)"
+                    >
+
+                    <span>Камин:</span>
+
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value="0"
+                        onchange="adjustAmbientSound('fire', this.value)"
+                    >
+                </div>
+
+                <div class="set-row">
+                    <button
+                        type="button"
+                        class="char-tree-trigger"
+                        onclick="openCharacterTreeModal()"
+                    >Древо персонажей (без спойлеров)</button>
+                </div>
+            </div>
+
+            <article class="reader-page-paper">
+                <h2 id="rp-book-name" class="reader-book-title">Название книги</h2>
+                <h3 id="rp-chapter-title" class="reader-chap-title">Глава 1</h3>
+
+                <div
+                    id="rp-text-content"
+                    class="reader-body-text"
+                    onmouseup="handleSelectionForNotes(event)"
+                ></div>
+            </article>
+
+            <div class="chapter-navigation-bar">
+                <button
+                    type="button"
+                    class="nav-step-btn"
+                    onclick="stepChapter(-1)"
+                >Предыдущая глава</button>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('book-page-view')"
+                >Назад к книге</button>
+
+                <button
+                    type="button"
+                    class="nav-step-btn"
+                    onclick="stepChapter(1)"
+                >Следующая глава</button>
+            </div>
+
+            <div class="chapter-notes-section">
+                <h4>Ваши заметки и цитаты к этой главе</h4>
+                <div id="chapter-notes-list" class="notes-feed"></div>
+            </div>
+            <div id="selection-action-bubble" class="selection-bubble" style="display: none;">
+    <button type="button" onclick="applyAnnotation('yellow')">Жёлтый</button>
+    <button type="button" onclick="applyAnnotation('green')">Зелёный</button>
+    <button type="button" onclick="applyAnnotation('red')">Красный</button>
+
+    <button type="button" onclick="applyAnnotation('underline')">Подчеркнуть</button>
+
+    <button type="button" onclick="applyAnnotation('wavy')">Волнисто</button>
+
+    <button type="button" onclick="openCommentModal()">Комментарий</button>
+
+    <button type="button" onclick="openTranslationPopup()">Перевод</button>
+
+    <button type="button" onclick="openFlashcardModal()">Карточка</button>
+
+    <button type="button" onclick="removeAnnotation()">Снять</button>
+</div>
+
+            <div id="translation-card" class="translation-popup" style="display: none;">
+                <div class="translation-popup-head">
+                <span>Перевод</span>
+                    <button type="button" onclick="closeTranslation()">✕</button>
+                    </div>
+
+                        <div id="tc-original" class="translation-original"></div>
+                        <div id="tc-content" class="translation-result"></div>
+            </div>
+
+            <!-- Комментарий к выделению -->
+<div id="comment-modal" class="modal-cover" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Комментарий к выделению</h3>
+
+            <button
+                type="button"
+                onclick="closeModal('comment-modal')"
+            >✕</button>
+        </div>
+
+        <div class="annotation-preview" id="comment-preview"></div>
+
+        <div class="form-group">
+            <label>Ваш комментарий:</label>
+
+            <textarea
+                id="comment-text"
+                rows="4"
+                placeholder="Напишите, что вы подумали об этом фрагменте..."
+            ></textarea>
+        </div>
+
+        <button type="button" class="submit-action-btn" onclick="saveComment()">Сохранить комментарий</button>
+    </div>
+</div>
+
+<!-- Карточка для повторения -->
+<div id="flashcard-create-modal" class="modal-cover" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Новая карточка</h3>
+
+            <button
+                type="button"
+                onclick="closeModal('flashcard-create-modal')"
+            >✕</button>
+        </div>
+
+        <div class="flashcard-create-grid">
+            <div class="form-group">
+                <label>Лицевая сторона:</label>
+
+                <textarea id="flashcard-front" rows="3" placeholder="Слово, фраза или цитата"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Обратная сторона:</label>
+
+                <textarea id="flashcard-back" rows="3" placeholder="Перевод, объяснение или пояснение"></textarea>
+            </div>
+        </div>
+
+        <button type="button" class="submit-action-btn" onclick="saveFlashcardFromModal()">Сохранить карточку</button>
+    </div>
+</div>
+        </section>
+
+        <!-- СЛОВАРЬ И КАРТОЧКИ -->
+        <section id="dictionary-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Словарь и карточки для повторения</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div class="flashcards-box-wrapper">
+                <div id="flashcard-deck-card" class="flashcard-display">
+                    <h3 id="fc-word">Нажмите «Начать повторение»</h3>
+
+                    <p
+                        id="fc-context"
+                        style="color:var(--text-muted); font-size:14px; margin: 10px 0;"
+                    ></p>
+
+                    <button
+                        type="button"
+                        class="action-btn"
+                        id="fc-reveal-btn"
+                        style="display:none;"
+                        onclick="revealFlashcardTranslation()"
+                    >Показать перевод</button>
+
+                    <h4
+                        id="fc-translation"
+                        style="display: none; color:var(--accent); margin-top:10px;"
+                    ></h4>
+                </div>
+
+                <div
+                    class="flashcards-ratings"
+                    id="fc-action-ratings"
+                    style="display: none;"
+                >
+                    <button
+                        type="button"
+                        class="fc-rate-btn hard"
+                        onclick="nextFlashcard()"
+                    >Снова</button>
+
+                    <button
+                        type="button"
+                        class="fc-rate-btn normal"
+                        onclick="nextFlashcard()"
+                    >Хорошо</button>
+
+                    <button
+                        type="button"
+                        class="fc-rate-btn easy"
+                        onclick="nextFlashcard()"
+                    >Легко</button>
+                </div>
+
+                <button
+                    type="button"
+                    class="submit-action-btn"
+                    id="fc-start-btn"
+                    onclick="startFlashcardReview()"
+                >Начать повторение</button>
+            </div>
+        </section>
+
+        <!-- БИБЛИОТЕКА -->
+        <section id="library-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Библиотека</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div class="library-tabs-row">
+                <button
+                    type="button"
+                    id="lib-tab-all"
+                    class="lib-tab active"
+                    onclick="switchLibraryTab('all')"
+                >Книги</button>
+
+                <button
+                    type="button"
+                    id="lib-tab-fav"
+                    class="lib-tab"
+                    onclick="switchLibraryTab('fav')"
+                >Избранные книги</button>
+            </div>
+
+            <div class="shelf-wrapper">
+                <div class="books-row" id="user-shelf-books"></div>
+
+                <div class="wood-shelf">
+                    <div class="shelf-left-edge"></div>
+                    <div class="shelf-front-wood"></div>
+                    <div class="shelf-right-edge"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ЛИЧНЫЙ КАБИНЕТ -->
+        <section id="profile-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Личный кабинет</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад на главную</button>
+            </div>
+
+            <div class="account-layout">
+                <section
+                    class="account-card"
+                    aria-labelledby="account-info-heading"
+                >
+                    <h3 id="account-info-heading">Личные данные</h3>
+
+                    <dl class="account-details">
+                        <div>
+                            <dt>Имя и фамилия</dt>
+                            <dd id="pf-name">—</dd>
+                        </div>
+
+                        <div>
+                            <dt>Роль в системе</dt>
+                            <dd id="pf-role">—</dd>
+                        </div>
+
+                        <div>
+                            <dt>Электронная почта</dt>
+                            <dd id="pf-email">—</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section
+                    class="account-card"
+                    aria-labelledby="account-settings-heading"
+                >
+                    <h3 id="account-settings-heading">Настройки</h3>
+
+                    <div class="account-settings-list">
+                        <button
+                            type="button"
+                            class="account-setting-button"
+                            onclick="openRulesModal()"
+                        >Правила сервиса</button>
+
+                        <details class="account-setting-section">
+                            <summary>Конфиденциальность</summary>
+
+                            <div class="account-setting-content">
+                                <p>
+                                    Это учебная версия сервиса «Фолиант».
+                                    Не используйте здесь реальные конфиденциальные данные.
+                                </p>
+
+                                <p>
+                                    Окончательная политика обработки персональных данных
+                                    пока не подготовлена.
+                                </p>
+                            </div>
+                        </details>
+
+                        <details class="account-setting-section">
+                            <summary>Поменять тему</summary>
+
+                            <div class="account-setting-content">
+                                <p>Выберите оформление сайта:</p>
+
+                                <div class="account-theme-options">
+                                    <button
+                                        type="button"
+                                        class="account-theme-button"
+                                        data-app-theme="dark"
+                                        aria-pressed="true"
+                                        onclick="setAppTheme('dark')"
+                                    >Тёмная</button>
+
+                                    <button
+                                        type="button"
+                                        class="account-theme-button"
+                                        data-app-theme="light"
+                                        aria-pressed="false"
+                                        onclick="setAppTheme('light')"
+                                    >Светлая</button>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- ПОДДЕРЖКА -->
+        <section id="support-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Поддержка</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div class="panel-box">
+                <form
+                    id="support-report-form"
+                    onsubmit="handleSendSupportTicket(event)"
+                >
+                    <div class="form-group">
+                        <label>Категория проблемы:</label>
+
+                        <select id="sup-category" required>
+                            <option value="Нарушение авторских прав">
+                                Нарушение авторских прав
+                            </option>
+
+                            <option value="Неподобающий контент">
+                                Неподобающий контент
+                            </option>
+
+                            <option value="Техническая ошибка">
+                                Техническая ошибка
+                            </option>
+
+                            <option value="Другое">Другое</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Название книги, в которой есть нарушение:</label>
+
+                        <input
+                            type="text"
+                            id="sup-book-title"
+                            required
+                            placeholder="Например: Капитанская дочка"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Прикрепите ссылку на книгу:</label>
+
+                        <input
+                            type="text"
+                            id="sup-book-link"
+                            placeholder="http://127.0.0.1:8000/"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Опишите подробно проблему:</label>
+
+                        <textarea
+                            id="sup-description"
+                            rows="5"
+                            required
+                            placeholder="Детали ситуации..."
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-action-btn">
+                        Отправить
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- КАБИНЕТ ПИСАТЕЛЯ -->
+    <section id="writer-view" class="view-screen">
+        <div class="writer-page-header">
+            <button
+            type="button"
+            class="writer-create-btn"
+            onclick="toggleWriterDrawer()"
+        >Писать</button>
+
+        <h2>Мои книги</h2>
+
+        <button
+            type="button"
+            class="back-link-btn"
+            onclick="navigate('catalog-view')"
+        >Назад</button>
+    </div>
+
+        <div id="writer-shelves"></div>
+    </section>
+
+        <!-- РЕДАКТИРОВАНИЕ КНИГИ -->
+<section id="book-edit-view" class="view-screen">
+    <div class="subpage-header">
+        <h2>Редактировать книгу</h2>
+
+        <button
+            type="button"
+            class="back-link-btn"
+            onclick="navigate('writer-view')"
+        >Назад</button>
+    </div>
+
+    <div class="book-edit-card">
+        <div class="form-group">
+            <label>Выберите книгу:</label>
+
+            <select
+                id="be-book-select"
+                onchange="loadBookForEditing()"
+            >
+                <option value="">Загрузка книг…</option>
+            </select>
+        </div>
+
+        <div id="book-edit-fields" style="display: none;">
+            <div class="form-group">
+                <label>Хештеги:</label>
+
+                <input
+                    type="text"
+                    id="be-hashtags"
+                    placeholder="#роман, #приключения"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Описание книги:</label>
+
+                <textarea
+                    id="be-description"
+                    rows="4"
+                ></textarea>
+            </div>
+
+            <button
+                type="button"
+                class="submit-action-btn"
+                onclick="updateBookInfo()"
+            >Обновить книгу</button>
+
+            <h3 class="book-edit-subtitle">Главы книги</h3>
+
+            <div id="book-edit-chapters" class="book-edit-chapters"></div>
+        </div>
+
+        <div
+            id="chapter-edit-block"
+            class="chapter-edit-block"
+            style="display: none;"
+        >
+            <h3 id="chapter-edit-title">Редактирование главы</h3>
+
+            <div class="form-group">
+                <label>Название главы:</label>
+
+                <input
+                    type="text"
+                    id="ce-chapter-title"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Текст главы:</label>
+
+                <textarea
+                    id="ce-chapter-content"
+                    rows="14"
+                ></textarea>
+            </div>
+
+            <button
+                type="button"
+                class="submit-action-btn"
+                onclick="updateChapter()"
+            >Обновить главу</button>
+
+            <button
+                type="button"
+                class="back-link-btn"
+                onclick="closeChapterEditor()"
+            >Назад к книге</button>
+        </div>
+    </div>
+</section>
+
+        <!-- ДОБАВЛЕНИЕ КНИГИ -->
+<section id="book-create-view" class="view-screen">
+    <div class="subpage-header">
+        <h2>Добавить книгу</h2>
+
+        <button
+            type="button"
+            class="back-link-btn"
+            onclick="navigate('writer-view')"
+        >Назад</button>
+    </div>
+
+    <div class="book-create-card">
+        <div class="form-group">
+            <label>Название книги:</label>
+            <input type="text" id="bc-title" required>
+        </div>
+
+        <div class="form-group">
+            <label>Жанр:</label>
+
+            <select id="bc-genre" required>
+                <option value="1">Классическая проза</option>
+                <option value="2">Фэнтези и приключения</option>
+                <option value="3">Альтернативная история</option>
+                <option value="4">Сёнэн и комиксы</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Стоимость (₽, 0 = бесплатно):</label>
+            <input type="number" id="bc-price" value="0" min="0">
+        </div>
+
+        <div class="form-group">
+            <label>Хештеги:</label>
+            <input
+                type="text"
+                id="bc-tags"
+                placeholder="#роман, #приключения"
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Описание книги:</label>
+            <textarea id="bc-desc" rows="4" required></textarea>
+        </div>
+
+
+
+        <div class="form-group">
+            <label>Файл с информацией и первой главой для проверки на антиплагиат:</label>
+            <input
+                type="file"
+                id="bc-document-file"
+                accept=".doc,.docx"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Файл обложки (PNG/JPG):</label>
+            <input type="file" id="bc-cover-file" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>Файл озвучки (аудиокнига MP3):</label>
+            <input type="file" id="bc-audio-file" accept="audio/*">
+        </div>
+
+        <div class="form-group">
+            <label>Файл музыки к книге (MP3):</label>
+            <input type="file" id="bc-music-file" accept="audio/*">
+        </div>
+
+        <button
+            type="button"
+            class="submit-action-btn"
+            onclick="handleCreateBookWithFiles()"
+        >Отправить на проверку антиплагиата</button>
+    </div>
+</section>
+
+        <!-- ДОБАВЛЕНИЕ ГЛАВЫ -->
+<section id="chapter-create-view" class="view-screen">
+    <div class="subpage-header">
+        <h2>Добавить главу</h2>
+
+        <button
+            type="button"
+            class="back-link-btn"
+            onclick="navigate('writer-view')"
+        >Назад</button>
+    </div>
+
+    <div class="chapter-mode-tabs">
+        <button
+            type="button"
+            id="tab-chapter"
+            class="chapter-mode-tab active"
+            onclick="switchChapterCreateTab('chapter')"
+        >Глава</button>
+
+        <button
+            type="button"
+            id="tab-notes"
+            class="chapter-mode-tab"
+            onclick="switchChapterCreateTab('notes')"
+        >Заметки</button>
+    </div>
+
+    <div id="chapter-create-form" class="chapter-create-card">
+        <div class="form-group">
+            <label>Выберите книгу:</label>
+
+            <select id="cc-book-select" required>
+                <option value="">Загрузка книг…</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Номер главы:</label>
+
+            <input
+                type="number"
+                id="cc-chapter-number"
+                min="1"
+                value="1"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Название главы:</label>
+
+            <input
+                type="text"
+                id="cc-chapter-title"
+                placeholder="Например: Глава 1. Начало пути"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Текст главы:</label>
+
+            <textarea
+                id="cc-chapter-content"
+                rows="14"
+                placeholder="Напишите текст главы здесь..."
+                required
+            ></textarea>
+        </div>
+
+        <button
+            type="button"
+            class="submit-action-btn"
+            onclick="handleCreateChapter()"
+        >Опубликовать главу</button>
+    </div>
+
+    <div id="writer-notes-panel" class="chapter-create-card" style="display: none;">
+        <div class="writer-notes-toolbar">
+            <button type="button" onclick="applyWriterNoteStyle('yellow')">Жёлтый</button>
+            <button type="button" onclick="applyWriterNoteStyle('green')">Зелёный</button>
+            <button type="button" onclick="applyWriterNoteStyle('red')">Красный</button>
+            <button type="button" onclick="applyWriterNoteStyle('underline')">Подчеркнуть</button>
+            <button type="button" onclick="clearWriterNoteStyle()">Стереть</button>
+        </div>
+
+        <div
+            id="writer-notes-editor"
+            class="writer-notes-editor"
+            contenteditable="true"
+        ></div>
+
+        <button
+            type="button"
+            class="submit-action-btn"
+            onclick="saveWriterNotes()"
+        >Сохранить заметки</button>
+
+
+    </div>
+</section>
+
+        <!-- РЕДАКТОР ГЛАВЫ -->
+        <section id="editor-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Полноэкранный редактор главы</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('writer-view')"
+                >Закрыть редактор</button>
+            </div>
+
+            <div class="fullscreen-editor-card">
+                <input
+                    type="text"
+                    id="ed-chap-title"
+                    placeholder="Заголовок главы..."
+                    class="editor-title-field"
+                >
+
+                <textarea
+                    id="ed-chap-body"
+                    placeholder="Текст главы создается здесь..."
+                    class="editor-content-area"
+                ></textarea>
+
+                <div class="editor-bottom-bar">
+                    <button
+                        type="button"
+                        class="submit-action-btn"
+                        onclick="saveCurrentChapter()"
+                    >Сохранить главу</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- МОДЕРАТОР -->
+        <section id="moderator-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Проверка авторства</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div id="mod-items-list" class="cards-deck"></div>
+        </section>
+
+        <!-- АДМИНИСТРАТОР -->
+        <section id="admin-view" class="view-screen">
+            <div class="subpage-header">
+                <h2>Администратор: жалобы и модерация</h2>
+
+                <button
+                    type="button"
+                    class="back-link-btn"
+                    onclick="navigate('catalog-view')"
+                >Назад</button>
+            </div>
+
+            <div id="admin-tickets-list" class="cards-deck"></div>
+        </section>
+
+    </main>
+
+    <!-- ШТОРКА ПИСАТЕЛЯ -->
+    <div
+        id="writer-overlay"
+        class="drawer-overlay"
+        onclick="toggleWriterDrawer()"
+    ></div>
+
+    <div id="writer-drawer" class="writer-drawer">
+    <div class="drawer-header">
+        <h3>Мастерская</h3>
+
+        <button
+            type="button"
+            class="drawer-close"
+            onclick="toggleWriterDrawer()"
+        >✕</button>
+    </div>
+
+    <div class="writer-actions-list">
+        <button
+            type="button"
+            class="wr-tool-btn"
+            onclick="navigate('book-create-view')"
+        >Добавить книгу</button>
+
+        <button
+            type="button"
+            class="wr-tool-btn"
+            onclick="navigate('chapter-create-view')"
+        >Добавить главу</button>
+
+        <button
+            type="button"
+            class="wr-tool-btn"
+            onclick="navigate('book-edit-view')"
+        >Редактировать книгу</button>
+
+        <button
+            type="button"
+            class="wr-tool-btn"
+            onclick="openCharacterBuilderModal()"
+        >Добавить персонажа / связь</button>
+    </div>
+</div>
+
+    <!-- НОВАЯ КНИГА -->
+    <div id="new-book-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>Новая публикация с файлами</h3>
+
+                <button
+                    type="button"
+                    onclick="closeModal('new-book-modal')"
+                >✕</button>
+            </div>
+
+            <form
+                id="create-book-form-media"
+                onsubmit="handleUploadBookWithFiles(event)"
+            >
+                <div class="form-group">
+                    <label>Название книги:</label>
+                    <input type="text" id="nb-title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Жанр:</label>
+
+                    <select id="nb-genre" required>
+                        <option value="1">Классическая проза</option>
+                        <option value="2">Фэнтези и приключения</option>
+                        <option value="3">Альтернативная история</option>
+                        <option value="4">Сёнэн и комиксы</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Стоимость (₽, 0 = бесплатно):</label>
+                    <input type="number" id="nb-price" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Хештеги:</label>
+                    <input
+                        type="text"
+                        id="nb-tags"
+                        placeholder="#роман, #приключения"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Описание книги:</label>
+                    <textarea id="nb-desc" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Файл с информацией и первой главой для проверки на антиплагиат:</label>
+                    <input
+                        type="file"
+                        id="nb-document-file"
+                        accept=".doc,.docx"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Файл обложки (PNG/JPG):</label>
+                    <input type="file" id="nb-cover-file" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Файл озвучки (аудиокнига MP3):</label>
+                    <input type="file" id="nb-audio-file" accept="audio/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Файл музыки к книге (MP3):</label>
+                <input
+                    type="file"
+                    id="nb-music-file"
+                    accept="audio/*">
+                </div>
+
+                <button type="submit" class="submit-action-btn">
+                    Отправить на проверку антиплагиата
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- КОНСТРУКТОР ПЕРСОНАЖЕЙ -->
+    <div id="char-builder-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>Конструктор персонажей</h3>
+
+                <button
+                    type="button"
+                    onclick="closeModal('char-builder-modal')"
+                >✕</button>
+            </div>
+
+            <form onsubmit="handleCreateChar(event)">
+                <div class="form-group">
+                    <label>Имя персонажа:</label>
+
+                    <input
+                        type="text"
+                        id="cb-name"
+                        required
+                        placeholder="Например: Пётр Гринёв"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Роль в сюжете:</label>
+
+                    <input
+                        type="text"
+                        id="cb-role"
+                        placeholder="Главный герой / Наставник"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>В какой главе впервые раскрывается факт?</label>
+                    <input type="number" id="cb-chapter" value="1" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Фрагмент биографии к этой главе:</label>
+
+                    <textarea
+                        id="cb-bio"
+                        rows="3"
+                        required
+                        placeholder="Дворянин, отправлен на службу в крепость..."
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="submit-action-btn">
+                    Добавить в беспойлерное древо
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- АВТОРИЗАЦИЯ -->
+    <div id="auth-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-head">
+                <div class="tab-toggle-wrap">
+                    <button
+                        type="button"
+                        id="auth-tab-l"
+                        class="auth-subtab active"
+                        onclick="switchAuthTab('login')"
+                    >Вход</button>
+
+                    <button
+                        type="button"
+                        id="auth-tab-r"
+                        class="auth-subtab"
+                        onclick="switchAuthTab('reg')"
+                    >Регистрация</button>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeModal('auth-modal')"
+                >✕</button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label>Почта:</label>
+
+                    <input
+                        type="email"
+                        id="log-email"
+                        required
+                        placeholder="reader@foliant.ru"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль:</label>
+
+                    <div class="password-field-wrap">
+                        <input type="password" id="log-pass" required>
+
+                        <button
+                            type="button"
+                            class="eye-btn"
+                            onclick="togglePasswordEye('log-pass', this)"
+                        >👁</button>
+                    </div>
+                </div>
+
+                <div class="forgot-link-row">
+                    <a
+                        href="javascript:void(0)"
+                        onclick="alert('Код восстановления выслан по СМС (заглушка)')"
+                    >Забыли пароль?</a>
+                </div>
+
+                <button type="submit" class="submit-action-btn">Войти</button>
+            </form>
+
+            <form
+                id="form-reg"
+                style="display: none;"
+                onsubmit="handleRegisterSubmit(event)"
+            >
+                <div class="form-group">
+                    <label>Имя и фамилия:</label>
+
+                    <input
+                        type="text"
+                        id="reg-name"
+                        required
+                        placeholder="Иван Бунин"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Почта:</label>
+
+                    <input
+                        type="email"
+                        id="reg-email"
+                        required
+                        placeholder="user@foliant.ru"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль:</label>
+
+                    <div class="password-field-wrap">
+                        <input type="password" id="reg-pass1" required>
+
+                        <button
+                            type="button"
+                            class="eye-btn"
+                            onclick="togglePasswordEye('reg-pass1', this)"
+                        >👁</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Повторите пароль:</label>
+
+                    <div class="password-field-wrap">
+                        <input type="password" id="reg-pass2" required>
+
+                        <button
+                            type="button"
+                            class="eye-btn"
+                            onclick="togglePasswordEye('reg-pass2', this)"
+                        >👁</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Роль в системе:</label>
+
+                    <select id="reg-role-select">
+                        <option value="1">Читатель</option>
+                        <option value="2">Писатель</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="reg-agree-check" required>
+
+                    <label for="reg-agree-check">
+                        Согласен(на) с
+                        <a
+                            href="javascript:void(0)"
+                            onclick="openRulesModal()"
+                        >правилами сервиса</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-action-btn">
+                    Завершить регистрацию
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ГОСТЬ -->
+    <div id="guest-guard-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box text-center">
+            <button
+                type="button"
+                class="modal-close-x"
+                onclick="closeModal('guest-guard-modal')"
+            >✕</button>
+
+            <h3>Зарегистрируйтесь</h3>
+
+            <p>
+                Чтение произведений, прослушивание аудио, покупка и отзывы
+                доступны авторизованным читателям.
+            </p>
+
+            <div class="guard-actions">
+                <button
+                    type="button"
+                    class="submit-action-btn"
+                    onclick="closeModal('guest-guard-modal'); openAuthModal('reg');"
+                >Зарегистрироваться или войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВИЛА -->
+    <div id="rules-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box wide">
+            <div class="modal-head">
+                <h3>Правила и политика сервиса «Фолиант»</h3>
+
+                <button
+                    type="button"
+                    onclick="closeModal('rules-modal')"
+                >✕</button>
+            </div>
+
+            <div class="rules-scrollable-content">
+                <p>
+                    <strong>1. Авторские права:</strong>
+                    Публикация чужих произведений без согласия правообладателя
+                    запрещена. Все работы проходят модерацию.
+                </p>
+
+                <p>
+                    <strong>2. Взаимоуважение:</strong>
+                    Оскорбительные отзывы и комментарии удаляются администратором.
+                </p>
+
+                <p>
+                    <strong>3. Покупки:</strong>
+                    Приобретённые книги закрепляются в личной библиотеке
+                    пользователя.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ДРЕВО ПЕРСОНАЖЕЙ -->
+    <div id="tree-modal" class="modal-cover" style="display: none;">
+        <div class="modal-box wide">
+            <div class="modal-head">
+                <h3>Древо персонажей и граф связей</h3>
+
+                <button
+                    type="button"
+                    onclick="closeModal('tree-modal')"
+                >✕</button>
+            </div>
+
+            <div class="tree-tabs-bar" style="display:flex; gap:10px; margin-bottom:12px;">
+                <button
+                    type="button"
+                    id="btn-tree-mode-list"
+                    class="submit-action-btn"
+                    style="width:auto; padding:6px 14px;"
+                    onclick="switchTreeMode('list')"
+                >Список фактов</button>
+
+                <button
+                    type="button"
+                    id="btn-tree-mode-canvas"
+                    class="back-link-btn"
+                    style="width:auto; padding:6px 14px;"
+                    onclick="switchTreeMode('canvas')"
+                >Визуальный 2D-граф</button>
+            </div>
+
+            <div id="tree-characters-deck" class="tree-deck"></div>
+
+            <div
+                id="tree-canvas-container"
+                style="display: none; text-align:center;"
+            >
+                <canvas
+                    id="char-graph-canvas"
+                    width="600"
+                    height="340"
+                    style="background:#011220; border-radius:8px; border:1px solid var(--border-color); width:100%; max-width:600px;"
+                ></canvas>
+
+                <p
+                    style="font-size:12px; color:var(--text-muted); margin-top:6px;"
+                >
+                    Узлы генерируются на основе открытых глав текущей книги.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
